@@ -39,6 +39,18 @@
             overflow: hidden;
             position: relative;
             border: 4px solid var(--text-color);
+            z-index: 10;
+        }
+
+        /* Confetti Canvas sits on top of everything but pointer events pass through */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
         }
 
         .scene-display {
@@ -118,10 +130,13 @@
 <body>
 
     <!-- Audio Elements with Local Sources -->
-    <audio id="hornAudio"><source src="car-horn.mp3" preload="auto" type="audio/mp3"></audio>
-    <audio id="singAudio"><source src="jingle-bell-rock.mp3" preload="auto" type="audio/mp3"></audio>
-    <audio id="dinerAudio"><source src="stomach-growl.mp3" preload="auto" type="audio/mp3"></audio>
-    <audio id="nightAudio"><source src="dreaming-harp.mp3" preload="auto" type="audio/mp3"></audio>
+    <audio id="hornAudio"><source src="car-horn.mp3" type="audio/mp3"></audio>
+    <audio id="singAudio"><source src="jingle-bell-rock.mp3" type="audio/mp3"></audio>
+    <audio id="dinerAudio"><source src="stomach-growl.mp3" type="audio/mp3"></audio>
+    <audio id="nightAudio"><source src="dreaming-harp.mp3" type="audio/mp3"></audio>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
 
     <div id="story-container">
         <div class="progress-container">
@@ -138,33 +153,87 @@
     </div>
 
     <script>
-        // Audio control functions (Restart logic ensures no overlap/glitching)
+        // --- Audio Control ---
         function stopAllAudio() {
             const sounds = ['hornAudio', 'singAudio', 'dinerAudio', 'nightAudio'];
             sounds.forEach(id => {
                 const audio = document.getElementById(id);
-                audio.pause();
-                audio.currentTime = 0;
+                if(audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
             });
         }
 
-        function playHorn() { 
-            stopAllAudio();
-            document.getElementById("hornAudio").play().catch(e => console.log("Audio interaction required")); 
-        }
-        function playSing() { 
-            stopAllAudio();
-            document.getElementById("singAudio").play().catch(e => console.log("Audio interaction required")); 
-        }
-        function playDiner() { 
-            stopAllAudio();
-            document.getElementById("dinerAudio").play().catch(e => console.log("Audio interaction required")); 
-        }
-        function playNight() { 
-            stopAllAudio();
-            document.getElementById("nightAudio").play().catch(e => console.log("Audio interaction required")); 
+        function playSound(id) {
+            // We do NOT call stopAllAudio here anymore, 
+            // because we call it globally on button click now.
+            const audio = document.getElementById(id);
+            if(audio) {
+                audio.play().catch(e => console.log("Audio interaction required: " + e));
+            }
         }
 
+        // --- Confetti System ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function startConfetti() {
+            if(animationId) return; // already running
+            resizeCanvas();
+            particles = [];
+            // Create 150 particles
+            for(let i=0; i<150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height, // start above screen
+                    vx: Math.random() * 4 - 2,
+                    vy: Math.random() * 5 + 3,
+                    color: `hsl(${Math.random()*360}, 100%, 50%)`,
+                    size: Math.random() * 8 + 4
+                });
+            }
+            animateConfetti();
+        }
+
+        function stopConfetti() {
+            if(animationId) cancelAnimationFrame(animationId);
+            animationId = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // Draw particle
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Recycle if it falls off screen
+                if(p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+
+            animationId = requestAnimationFrame(animateConfetti);
+        }
+
+        // --- Story Data ---
         const story = {
             start: {
                 title: "The Mission Begins",
@@ -173,7 +242,7 @@
                          <div class="actor bg-element" style="left: 10%; bottom: 40px;">🏔️</div>`,
                 bg: "linear-gradient(to bottom, #87CEEB, #E0F7FA)",
                 choices: [
-                    { text: "Honk the horn! 📢", next: "road_start", action: playHorn },
+                    { text: "Honk the horn! 📢", next: "road_start", soundId: "hornAudio" },
                     { text: "Check the map 🗺️", next: "road_start" }
                 ]
             },
@@ -185,7 +254,7 @@
                 bg: "linear-gradient(to bottom, #4facfe, #00f2fe)",
                 choices: [
                     { text: "Scouting for animals! 🐄", next: "animals" },
-                    { text: "Singing holiday songs! 🎵", next: "singing", action: playSing }
+                    { text: "Singing holiday songs! 🎵", next: "singing", soundId: "singAudio" }
                 ]
             },
             animals: {
@@ -195,7 +264,7 @@
                          <div class="actor" style="font-size: 80px; bottom: 20px; right: 20%;">🏔️</div>`,
                 bg: "#A8E6CF",
                 choices: [
-                    { text: "My tummy is rumbling...", next: "diner", action: playDiner }
+                    { text: "My tummy is rumbling...", next: "diner", soundId: "dinerAudio" }
                 ]
             },
             singing: {
@@ -204,7 +273,7 @@
                 visual: `<div class="actor" style="font-size: 80px; bottom: 40px;">🎵 🎤 🎶</div>`,
                 bg: "#FFD3B6",
                 choices: [
-                    { text: "I'm getting hungry!", next: "diner", action: playDiner }
+                    { text: "I'm getting hungry!", next: "diner", soundId: "dinerAudio" }
                 ]
             },
             diner: {
@@ -214,8 +283,8 @@
                          <div class="actor" style="font-size: 40px; top: 20px; left: 20px;">❄️</div>`,
                 bg: "#FFAAA5",
                 choices: [
-                    { text: "Eat Pumpkin Pie! 🥧", next: "night", action: playNight },
-                    { text: "Turkey Sandwiches! 🦃", next: "night", action: playNight }
+                    { text: "Eat Pumpkin Pie! 🥧", next: "night", soundId: "nightAudio" },
+                    { text: "Turkey Sandwiches! 🦃", next: "night", soundId: "nightAudio" }
                 ]
             },
             night: {
@@ -226,8 +295,8 @@
                          <div class="actor" style="font-size: 30px; animation: bounce 3s infinite;">❄️ ❄️ ❄️</div>`,
                 bg: "linear-gradient(to bottom, #141E30, #243B55)",
                 choices: [
-                    { text: "Snuggle up! 🧸", next: "teamwork", action: playNight },
-                    { text: "Tell ghost stories! 👻", next: "teamwork", action: playNight }
+                    { text: "Snuggle up! 🧸", next: "teamwork", soundId: "nightAudio" },
+                    { text: "Tell ghost stories! 👻", next: "teamwork", soundId: "nightAudio" }
                 ]
             },
             teamwork: {
@@ -236,7 +305,7 @@
                 visual: `<div class="actor" style="font-size: 100px;">💖</div>`,
                 bg: "#FFAAA7",
                 choices: [
-                    { text: "Group Hug! 🤗", next: "arrival", action: playSing }
+                    { text: "Group Hug! 🤗", next: "arrival", soundId: "singAudio" }
                 ]
             },
             arrival: {
@@ -263,35 +332,52 @@
         function renderScene(sceneKey) {
             const scene = story[sceneKey];
 
-            // Animate text
+            // 1. Confetti Logic
+            if(sceneKey === 'arrival') {
+                startConfetti();
+            } else {
+                stopConfetti();
+            }
+
+            // 2. Animate text
             titleEl.classList.remove('animate-in');
             textEl.classList.remove('animate-in');
             void titleEl.offsetWidth;
             titleEl.classList.add('animate-in');
             textEl.classList.add('animate-in');
 
-            // Set content
+            // 3. Set content
             titleEl.innerText = scene.title;
             textEl.innerText = scene.text;
             visualsEl.innerHTML = scene.visual;
             sceneBg.style.background = scene.bg;
 
-            // Choices
+            // 4. Create Choices
             choicesEl.innerHTML = '';
             scene.choices.forEach(choice => {
                 const btn = document.createElement('button');
                 btn.classList.add('choice-btn', 'animate-in');
                 btn.innerText = choice.text;
+                
                 btn.onclick = () => {
-                    if(choice.action) choice.action(); // Play audio
+                    // STOP all previous audio immediately
+                    stopAllAudio();
+                    
+                    // PLAY new audio only if defined
+                    if(choice.soundId) {
+                        playSound(choice.soundId);
+                    }
+                    
+                    // Logic to advance
                     currentStep++;
                     updateProgress();
                     renderScene(choice.next);
                 };
+                
                 choicesEl.appendChild(btn);
             });
 
-            if(sceneKey==='start'){currentStep=0;updateProgress();}
+            if(sceneKey === 'start'){ currentStep = 0; updateProgress(); }
         }
 
         function updateProgress() {
@@ -303,4 +389,3 @@
     </script>
 </body>
 </html>
-
