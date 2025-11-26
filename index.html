@@ -1,284 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Three Musketeers on a Mission</title>
-    <style>
-        /* --- 1. Storybook Aesthetic --- */
-        :root {
-            --bg-color: #fdf6e3;
-            --text-color: #2c3e50;
-            --accent: #d35400;
-            --highlight: #27ae60;
-            --card-bg: #ffffff;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        #story-container {
-            width: 90%;
-            max-width: 500px;
-            height: 85vh;
-            background: var(--card-bg);
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            border: 4px solid var(--text-color);
-        }
-
-        .scene-display {
-            flex: 2;
-            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 80px;
-            transition: background 1s;
-        }
-
-        .actor {
-            position: absolute;
-            transition: all 0.5s ease-in-out;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
-        }
-
-        .truck { bottom: 20px; font-size: 100px; z-index: 10; }
-        .bg-element { font-size: 120px; opacity: 0.5; z-index: 1; }
-
-        .story-content {
-            flex: 1.5;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: var(--card-bg);
-            z-index: 20;
-        }
-
-        h2 { margin: 0 0 15px 0; font-size: 1.5rem; color: var(--accent); }
-        p { font-size: 1.1rem; line-height: 1.6; margin: 0 0 25px 0; color: #555; }
-
-        .choices-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .choice-btn {
-            background: white;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            padding: 15px;
-            font-size: 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .choice-btn:hover {
-            background: var(--accent);
-            color: white;
-        }
-
-        .choice-btn:active { transform: scale(0.98); }
-
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes drive { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
-        .bouncing { animation: bounce 2s infinite; }
-
-        .progress-container { height: 8px; background: #eee; width: 100%; }
-        .progress-bar { height: 100%; background: var(--highlight); width: 0%; transition: width 0.5s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Three Musketeers on a Mission</title>
+<style>
+:root {
+    --bg-color: #fdf6e3;
+    --text-color: #2c3e50;
+    --accent: #d35400;
+    --highlight: #27ae60;
+    --card-bg: #ffffff;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS','Chalkboard SE',sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+#story-container {
+    width: 90%;
+    max-width: 500px;
+    height: 85vh;
+    background: var(--card-bg);
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    border: 4px solid var(--text-color);
+}
+.scene-display {
+    flex: 2;
+    background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 80px;
+    transition: background 1s;
+}
+.actor { position: absolute; transition: all 0.5s ease-in-out; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
+.truck { bottom: 20px; font-size: 100px; z-index: 10; }
+.bg-element { font-size: 120px; opacity: 0.5; z-index: 1; }
+.story-content {
+    flex: 1.5;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: var(--card-bg);
+    z-index: 20;
+}
+h2 { margin: 0 0 15px 0; font-size: 1.5rem; color: var(--accent); }
+p { font-size: 1.1rem; line-height: 1.6; margin: 0 0 25px 0; color: #555; }
+.choices-container { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.choice-btn {
+    background: white;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 15px;
+    font-size: 1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+.choice-btn:hover { background: var(--accent); color: white; }
+.choice-btn:active { transform: scale(0.98); }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeIn 0.5s ease-out forwards; }
+.bouncing { animation: bounce 2s infinite; }
+.progress-container { height: 8px; background: #eee; width: 100%; }
+.progress-bar { height: 100%; background: var(--highlight); width: 0%; transition: width 0.5s; }
+</style>
 </head>
 <body>
 
-    <!-- Audio placeholders -->
-    <audio id="hornAudio"><source src="https://drive.google.com/file/d/1c8g6M6AnnPmCLJTWR_Y2xPY_5H0AyQcC/view?usp=sharing" type="audio/mp3"></audio>
-    <audio id="singAudio"><source src="https://drive.google.com/file/d/1PhWmCpac8gRD09bY6w-1DaJh7nXDndJm/view?usp=sharing" type="audio/mp3"></audio>
-    <audio id="dinerAudio"><source src="https://drive.google.com/file/d/1W_OQ71-B89xOxPuMI2vR4wWWhjY1GkaE/view?usp=sharing" type="audio/mp3"></audio>
-    <audio id="nightAudio"><source src="https://drive.google.com/file/d/1PhWmCpac8gRD09bY6w-1DaJh7nXDndJm/view?usp=sharing" type="audio/mp3"></audio>
-
-    <div id="story-container">
-        <div class="progress-container">
-            <div class="progress-bar" id="progress"></div>
-        </div>
-        <div class="scene-display" id="scene-bg">
-            <div id="visuals"></div>
-        </div>
-        <div class="story-content">
-            <h2 id="story-title">Loading...</h2>
-            <p id="story-text">...</p>
-            <div class="choices-container" id="choices"></div>
-        </div>
+<div id="story-container">
+    <div class="progress-container">
+        <div class="progress-bar" id="progress"></div>
     </div>
+    <div class="scene-display" id="scene-bg">
+        <div id="visuals"></div>
+    </div>
+    <div class="story-content">
+        <h2 id="story-title">Loading...</h2>
+        <p id="story-text">...</p>
+        <div class="choices-container" id="choices"></div>
+    </div>
+</div>
 
-    <script>
-        // Audio functions
-        function playHorn() { const a=document.getElementById("hornAudio"); a.pause(); a.currentTime=0; a.play(); }
-        function playSing() { const a=document.getElementById("singAudio"); a.pause(); a.currentTime=0; a.play(); }
-        function playDiner() { const a=document.getElementById("dinerAudio"); a.pause(); a.currentTime=0; a.play(); }
-        function playNight() { const a=document.getElementById("nightAudio"); a.pause(); a.currentTime=0; a.play(); }
+<script>
+const story = {
+    start: {
+        title: "The Mission Begins",
+        text: "The Three Musketeers—Dad, Mom, and You—climb into the big truck in Utah. The engine roars to life! 🚛💨",
+        visual: `<div class="actor truck bouncing" style="left: calc(50% - 50px);">🚛</div>
+                 <div class="actor bg-element" style="left: 10%; bottom: 40px;">🏔️</div>`,
+        bg: "linear-gradient(to bottom, #87CEEB, #E0F7FA)",
+        audio: "horn",
+        choices: [
+            { text: "Honk the horn! 📢", next: "road_start" },
+            { text: "Check the map 🗺️", next: "road_start" }
+        ]
+    },
+    road_start: {
+        title: "The Long Road",
+        text: "The road is very long. Dad is driving hard. Mom is organizing snacks. What is the Little Musketeer doing?",
+        visual: `<div class="actor truck" style="left: calc(50% - 50px); animation: bounce 1s infinite;">🚛</div>
+                 <div class="actor" style="font-size: 40px; top: 20px; right: 20px;">🦅</div>`,
+        bg: "linear-gradient(to bottom, #4facfe, #00f2fe)",
+        choices: [
+            { text: "Scouting for animals! 🐄", next: "animals" },
+            { text: "Singing holiday songs! 🎵", next: "singing" }
+        ]
+    },
+    animals: {
+        title: "Official Scout",
+        text: "Good eye! You spot cows, a hawk, and big snowy mountains ahead. You report them to Captain Dad. 'Good work, Scout!' he says.",
+        visual: `<div class="actor" style="font-size: 80px; bottom: 20px; left: 20%;">🐄</div>
+                 <div class="actor" style="font-size: 80px; bottom: 20px; right: 20%;">🏔️</div>`,
+        bg: "#A8E6CF",
+        choices: [
+            { text: "My tummy is rumbling...", next: "diner" }
+        ]
+    },
+    singing: {
+        title: "Truck Karaoke",
+        text: "You start singing 'Jingle Bells' at the top of your lungs. Mom laughs and joins in. Even the truck seems to hum along!",
+        visual: `<div class="actor" style="font-size: 80px; bottom: 40px;">🎵 🎤 🎶</div>`,
+        bg: "#FFD3B6",
+        audio: "sing",
+        choices: [
+            { text: "I'm getting hungry!", next: "diner" }
+        ]
+    },
+    diner: {
+        title: "Colorado Feast",
+        text: "You stop at a diner in the mountains. It's snowing outside! It's not a fancy table, but it's the Musketeer Thanksgiving Dinner.",
+        visual: `<div class="actor" style="font-size: 100px; bottom: 30px;">🥧 🦃</div>
+                 <div class="actor" style="font-size: 40px; top: 20px; left: 20px;">❄️</div>`,
+        bg: "#FFAAA5",
+        audio: "diner",
+        choices: [
+            { text: "Eat Pumpkin Pie! 🥧", next: "night" },
+            { text: "Turkey Sandwiches! 🦃", next: "night" }
+        ]
+    },
+    night: {
+        title: "Cozy Cabin on Wheels",
+        text: "The sun sets over the Rockies. It's too far to New York tonight, so the truck becomes your hotel. It's warm and safe inside.",
+        visual: `<div class="actor truck" style="left: calc(50% - 50px);">🚛</div>
+                 <div class="actor" style="top: 20px; left: 20px;">🌙</div>
+                 <div class="actor" style="font-size: 30px; animation: bounce 3s infinite;">❄️ ❄️ ❄️</div>`,
+        bg: "linear-gradient(to bottom, #141E30, #243B55)",
+        audio: "night",
+        choices: [
+            { text: "Snuggle up! 🧸", next: "teamwork" },
+            { text: "Tell ghost stories! 👻", next: "teamwork" }
+        ]
+    },
+    teamwork: {
+        title: "The Best Gift",
+        text: "You realize something special. It doesn't matter where you are—Utah, Colorado, or New York. The Musketeers are together.",
+        visual: `<div class="actor" style="font-size: 100px;">💖</div>`,
+        bg: "#FFAAA7",
+        choices: [
+            { text: "Group Hug! 🤗", next: "arrival" }
+        ]
+    },
+    arrival: {
+        title: "Happy Thanksgiving!",
+        text: "You fall asleep watching the snow fall on the mountains. Best Thanksgiving ever. Goodnight, Little Musketeer.",
+        visual: `<div class="actor" style="font-size: 100px; bottom: 20px;">💤 🚛 🏔️</div>`,
+        bg: "linear-gradient(to bottom, #2c3e50, #4ca1af)",
+        choices: [
+            { text: "Start Over 🔄", next: "start" }
+        ]
+    }
+};
 
-        const story = {
-            start: {
-                title: "The Mission Begins",
-                text: "The Three Musketeers—Dad, Mom, and You—climb into the big truck in Utah. The engine roars to life! 🚛💨",
-                visual: `<div class="actor truck bouncing" style="left: calc(50% - 50px);">🚛</div>
-                         <div class="actor bg-element" style="left: 10%; bottom: 40px;">🏔️</div>`,
-                bg: "linear-gradient(to bottom, #87CEEB, #E0F7FA)",
-                choices: [
-                    { text: "Honk the horn! 📢", next: "road_start", action: playHorn },
-                    { text: "Check the map 🗺️", next: "road_start" }
-                ]
-            },
-            road_start: {
-                title: "The Long Road",
-                text: "The road is very long. Dad is driving hard. Mom is organizing snacks. What is the Little Musketeer doing?",
-                visual: `<div class="actor truck" style="left: calc(50% - 50px); animation: bounce 1s infinite;">🚛</div>
-                         <div class="actor" style="font-size: 40px; top: 20px; right: 20px;">🦅</div>`,
-                bg: "linear-gradient(to bottom, #4facfe, #00f2fe)",
-                choices: [
-                    { text: "Scouting for animals! 🐄", next: "animals" },
-                    { text: "Singing holiday songs! 🎵", next: "singing", action: playSing }
-                ]
-            },
-            animals: {
-                title: "Official Scout",
-                text: "Good eye! You spot cows, a hawk, and big snowy mountains ahead. You report them to Captain Dad. 'Good work, Scout!' he says.",
-                visual: `<div class="actor" style="font-size: 80px; bottom: 20px; left: 20%;">🐄</div>
-                         <div class="actor" style="font-size: 80px; bottom: 20px; right: 20%;">🏔️</div>`,
-                bg: "#A8E6CF",
-                choices: [
-                    { text: "My tummy is rumbling...", next: "diner", action: playDiner }
-                ]
-            },
-            singing: {
-                title: "Truck Karaoke",
-                text: "You start singing 'Jingle Bells' at the top of your lungs. Mom laughs and joins in. Even the truck seems to hum along!",
-                visual: `<div class="actor" style="font-size: 80px; bottom: 40px;">🎵 🎤 🎶</div>`,
-                bg: "#FFD3B6",
-                choices: [
-                    { text: "I'm getting hungry!", next: "diner", action: playDiner }
-                ]
-            },
-            diner: {
-                title: "Colorado Feast",
-                text: "You stop at a diner in the mountains. It's snowing outside! It's not a fancy table, but it's the Musketeer Thanksgiving Dinner.",
-                visual: `<div class="actor" style="font-size: 100px; bottom: 30px;">🥧 🦃</div>
-                         <div class="actor" style="font-size: 40px; top: 20px; left: 20px;">❄️</div>`,
-                bg: "#FFAAA5",
-                choices: [
-                    { text: "Eat Pumpkin Pie! 🥧", next: "night", action: playNight },
-                    { text: "Turkey Sandwiches! 🦃", next: "night", action: playNight }
-                ]
-            },
-            night: {
-                title: "Cozy Cabin on Wheels",
-                text: "The sun sets over the Rockies. It's too far to New York tonight, so the truck becomes your hotel. It's warm and safe inside.",
-                visual: `<div class="actor truck" style="left: calc(50% - 50px);">🚛</div>
-                         <div class="actor" style="top: 20px; left: 20px;">🌙</div>
-                         <div class="actor" style="font-size: 30px; animation: bounce 3s infinite;">❄️ ❄️ ❄️</div>`,
-                bg: "linear-gradient(to bottom, #141E30, #243B55)",
-                choices: [
-                    { text: "Snuggle up! 🧸", next: "teamwork" },
-                    { text: "Tell ghost stories! 👻", next: "teamwork" }
-                ]
-            },
-            teamwork: {
-                title: "The Best Gift",
-                text: "You realize something special. It doesn't matter where you are—Utah, Colorado, or New York. The Musketeers are together.",
-                visual: `<div class="actor" style="font-size: 100px;">💖</div>`,
-                bg: "#FFAAA7",
-                choices: [
-                    { text: "Group Hug! 🤗", next: "arrival" }
-                ]
-            },
-            arrival: {
-                title: "Happy Thanksgiving!",
-                text: "You fall asleep watching the snow fall on the mountains. Best Thanksgiving ever. Goodnight, Little Musketeer.",
-                visual: `<div class="actor" style="font-size: 100px; bottom: 20px;">💤 🚛 🏔️</div>`,
-                bg: "linear-gradient(to bottom, #2c3e50, #4ca1af)",
-                choices: [
-                    { text: "Start Over 🔄", next: "start" }
-                ]
-            }
+// --- Audio sources ---
+const audioSources = {
+    horn: "https://drive.google.com/uc?export=download&id=1c8g6M6AnnPmCLJTWR_Y2xPY_5H0AyQcC",
+    sing: "https://drive.google.com/uc?export=download&id=1PhWmCpac8gRD09bY6w-1DaJh7nXDndJm",
+    diner: "https://drive.google.com/uc?export=download&id=1W_OQ71-B89xOxPuMI2vR4wWWhjY1GkaE",
+    night: "https://drive.google.com/uc?export=download&id=1PhWmCpac8gRD09bY6w-1DaJh7nXDndJm"
+};
+
+// --- Engine ---
+const titleEl = document.getElementById('story-title');
+const textEl = document.getElementById('story-text');
+const visualsEl = document.getElementById('visuals');
+const sceneBg = document.getElementById('scene-bg');
+const choicesEl = document.getElementById('choices');
+const progressEl = document.getElementById('progress');
+
+let currentStep = 0;
+
+function playAudio(name) {
+    if (!name) return;
+    const audio = new Audio(audioSources[name]);
+    audio.play();
+}
+
+function renderScene(sceneKey) {
+    const scene = story[sceneKey];
+
+    // Text Animation
+    titleEl.classList.remove('animate-in');
+    textEl.classList.remove('animate-in');
+    void titleEl.offsetWidth;
+    titleEl.classList.add('animate-in');
+    textEl.classList.add('animate-in');
+
+    // Set Content
+    titleEl.innerText = scene.title;
+    textEl.innerText = scene.text;
+    visualsEl.innerHTML = scene.visual;
+    sceneBg.style.background = scene.bg;
+
+    // Play Audio if exists
+    playAudio(scene.audio);
+
+    // Generate Choices
+    choicesEl.innerHTML = '';
+    scene.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.classList.add('choice-btn','animate-in');
+        btn.innerText = choice.text;
+        btn.onclick = () => {
+            currentStep++;
+            updateProgress();
+            renderScene(choice.next);
         };
+        choicesEl.appendChild(btn);
+    });
 
-        // --- Engine ---
-        const titleEl = document.getElementById('story-title');
-        const textEl = document.getElementById('story-text');
-        const visualsEl = document.getElementById('visuals');
-        const sceneBg = document.getElementById('scene-bg');
-        const choicesEl = document.getElementById('choices');
-        const progressEl = document.getElementById('progress');
+    // Reset progress if back at start
+    if (sceneKey === 'start') {
+        currentStep = 0;
+        updateProgress();
+    }
+}
 
-        let currentStep = 0;
+function updateProgress() {
+    const pct = (currentStep / 7) * 100;
+    progressEl.style.width = Math.min(pct,100) + '%';
+}
 
-        function renderScene(sceneKey) {
-            const scene = story[sceneKey];
-
-            // Animate text
-            titleEl.classList.remove('animate-in');
-            textEl.classList.remove('animate-in');
-            void titleEl.offsetWidth;
-            titleEl.classList.add('animate-in');
-            textEl.classList.add('animate-in');
-
-            // Set content
-            titleEl.innerText = scene.title;
-            textEl.innerText = scene.text;
-            visualsEl.innerHTML = scene.visual;
-            sceneBg.style.background = scene.bg;
-
-            // Choices
-            choicesEl.innerHTML = '';
-            scene.choices.forEach(choice => {
-                const btn = document.createElement('button');
-                btn.classList.add('choice-btn', 'animate-in');
-                btn.innerText = choice.text;
-                btn.onclick = () => {
-                    if(choice.action) choice.action(); // Play audio
-                    currentStep++;
-                    updateProgress();
-                    renderScene(choice.next);
-                };
-                choicesEl.appendChild(btn);
-            });
-
-            if(sceneKey==='start'){currentStep=0;updateProgress();}
-        }
-
-        function updateProgress() {
-            const pct = (currentStep / 7) * 100;
-            progressEl.style.width = Math.min(pct,100)+'%';
-        }
-
-        renderScene('start');
-    </script>
+// Initialize
+renderScene('start');
+</script>
 </body>
 </html>
